@@ -1,0 +1,80 @@
+/* Object_detection  */
+{
+    "name": "Classfication_Test",
+    "type": "basic", /* Classefication, Segmentation*/
+    "seed": 2019,
+    "n_gpu": 1,
+    "save": true,
+    "fold_split": 3,
+    "batch_size": 32,
+    "shuffle": true,
+    "num_workers": 4,
+    "log_step": 15, /* batch_size -> index % self.log_step */
+    "debug": {
+        "set_debug": false  ,
+        "ratio" : 0.1 /* dataset split -> 0.2 : dataset 20% using for train*/
+    },
+    "data_set":{
+        "type": "DataToneDataset",
+        "args": {
+            "data_dir": "/home/ec2-user/dataset/b-trac-cyto",
+            "mode": "train"
+        }
+    },
+    "valid_set":{
+        "is_pass": false,
+        "type": "DataToneDataset",
+        "args":{
+            "data_dir": "/home/ec2-user/dataset/b-trac-cyto", /* */
+            "mode": "val"
+        }
+    },
+    "Net": {
+        "type": "ReadTimmModule",
+        "args": {
+            "model_name": "tf_efficientnet_lite0",
+            "num_classes": 2,
+            "pretrained": true
+        }
+    },
+    "transform":{
+        "type": "baseTransformforDataton",
+        "args": {
+            "mean": [0.044, 0.058, 0.125],
+            "std": [0.204, 0.234, 0.33],
+            "resize": 0,
+            "use_rand_aug": false
+        }
+    },
+    "loss":{
+        "type": "torchnnloass",
+        "args" :{
+            "name": "CrossEntropyLoss"
+        }
+    }, 
+    "metrics": [
+        "accuracy",
+        "specificity",
+        "recall",
+        "precision", 
+        "megative_value", 
+        "f1_scores",
+        "avg"
+    ],
+    "optimizer": {
+        "type": "SGD",
+        "args":{
+            "lr": 0.001,
+            "momentum": 0.9
+        }
+    },
+    "trainer": {
+        "epochs": 20,
+        "save_dir": "logs/",
+        "save_period": 2,
+        "early_stop": 5,
+        "verbosity": 2,
+        "monitor": "min val_avg",
+        "tensorboard": false
+    }
+}

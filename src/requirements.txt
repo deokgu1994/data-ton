@@ -1,0 +1,13 @@
+torch
+torchvision
+numpy
+tqdm
+effdet
+map-boxes
+ttach
+sklearn
+adamp
+opencv-python
+pycocotools
+iterative-stratification
+scipy

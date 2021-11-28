@@ -1,0 +1,78 @@
+/* Object_detection  */
+{
+    "name": "Classfication_inference",
+    "type": "Classfication", /* Classefication, Segmentation*/
+    "seed": 2019,
+    "n_gpu": 1,
+    "fold_split": 3,
+    "batch_size": 16,
+    "shuffle": true,
+    "num_workers": 4,
+    "log_step": 15, /* batch_size -> index % self.log_step */
+    "debug": {
+        "set_debug": true,
+        "ratio" : 0.1 /* dataset split -> 0.2 : dataset 20% using for train*/
+    },
+    "data_set":{
+        "type": "DataToneDataset",
+        "args": {
+            "data_dir": "/home/ec2-user/dataset/b-trac-cyto",
+            "mode": "val"
+        }
+    },
+    "Net_num":5,
+    "Net1": {
+        "type": "ReadTimmModule",
+        "args": {
+            "model_name": "tf_efficientnet_lite0",
+            "num_classes": 2,
+            "pretrained": true
+        },
+        "pth_path": "/home/ec2-user/data-ton/src/logs/log/Classfication_Test/1115_164210_tf_efficientnet_lite0_39M_ok/model_best.pth"
+    },
+    "transform":{
+        "type": "baseTransform",
+        "args": {
+            "mean": [0.460, 0.440, 0.418],
+            "std": [0.210, 0.207, 0.216],
+            "resize": 0,
+            "use_rand_aug": true
+        }
+    },
+    "loss":{
+        "type": "torchnnloass",
+        "args" :{
+            "name": "CrossEntropyLoss"
+        }
+    }, 
+    "metrics": [
+        "accuracy",
+        "top_k_acc",
+        "f1_scores"
+        /*"accuracy", "specificity", "recall", "precision", "megative_value", "f1_scores"*/
+    ],
+    "optimizer": {
+        "type": "AdamP",
+        "args":{
+            "lr": 0.001,
+            "betas": [0.9, 0.999],
+            "weight_decay": 1e-2
+        }
+    },
+    "lr_scheduler": {
+        "type": "CosineAnnealingLR",
+        "args": {
+            "T_max" : 50,
+            "eta_min": 0
+        }
+    },
+    "trainer": {
+        "epochs": 5,
+        "save_dir": "logs/",
+        "save_period": 4,
+        "early_stop": 2,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "tensorboard": false
+    }
+}

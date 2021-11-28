@@ -1,0 +1,72 @@
+/* Object_detection  */
+{
+    "name": "Semantic_Segmentation",
+    "type": "Segmentation", /* Classefication, Segmentation*/
+    "seed": 2109,
+    "n_gpu": 1,
+    "save": true,
+    "batch_size": 16,
+    "num_workers": 4,
+    "shuffle": true,
+    "fold_split": 3,
+    "log_step": 15, /* batch_size -> index % self.log_step */
+    "debug": {
+        "set_debug": false,
+        "ratio" : 0.1  /* data__split -> 0.2 : data 20% using  test*/
+    },
+    "data_set":{
+        "type": "CustomSegDataSet",
+        "args": {
+            "data_dir": "/opt/ml/segmentation/input/data/",
+            "ann_dir": "/opt/ml/segmentation/input/data/train_all.json"
+        }
+    },
+    "Net": {
+        "type": "OcrHrnetv2",
+        "args": {
+            "num_classes": 11,
+            "pretrainde_pth":"/opt/ml/segmentation/Pytroch_Template/_Test_ipynb/model/seg/hrnetv2_w48_imagenet_pretrained.pth"
+        }
+    },
+    "transform":{
+        "type": "CustomTransForm_seg",
+        "args": {
+            "mean": [0.460, 0.440, 0.418],
+            "std": [0.210, 0.207, 0.216],
+            "resize": 0
+        }
+    },
+    "loss":{
+        "type": "FocalLoss",
+        "args" :{
+            "gamma": 2.0
+        }
+    }, 
+    "metrics": [
+        /*"accuracy", "top_k_acc"*/
+    ],
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.005,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "lr_scheduler": {
+        "type": "CosineAnnealingLR",
+        "args": {
+            "T_max" : 50,
+            "eta_min": 0
+        }
+    },
+    "trainer": {
+        "epochs": 100,
+        "save_dir": "logs/",
+        "save_period": 4,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "early_stop": 5,
+        "tensorboard": false
+    }
+}
